@@ -72,3 +72,41 @@ python scripts/cdd_tool.py dtc ECU.cdd
 ## 6. Keep a change log
 
 Write down, per CDD revision: requirement source (file + version/date), which DIDs changed read/write mode, which services were removed, and why. The next engineer will otherwise re-derive the same state-index mapping from scratch.
+
+## 7. Real questionnaire layouts (Chery EEA5.0/5.1, EGS projects)
+
+The OEM questionnaire used on Chery projects
+(`T1V EV&PHEV_diagnostic_requirement_investigation_list_EGS_EEA5.0_V1.2_*.xlsx`) has one sheet per topic and
+columns that shift between sheets. Extract it programmatically (openpyxl), never by eye.
+
+| Sheet | Layout |
+|---|---|
+| `03.1.System DID` | A=seq, **B=DID**, C/D=EN/CN, E=CVT, **F=R/W**, G=Size, H/I=Byte/Bit, J/K=sub-data names, L/M=min/max, N=unit, O/P=method type, Q=default, R=data type, S=storage, T=functional, U/V/W=$22 app sessions (0x01/0x02/0x03), X/Y/Z=$22 boot sessions, AA/AB/AC/AD=$22 security (Level0/Level1/LevelFBL/LevelIMMO), AE–AG=$2E app, AH–AJ=$2E boot, AK–AN=$2E security, AO/AP=product/after-sales, **AR(44)=ECU是否支持** |
+| `03.2.ECU DID` | same fields one column left: **E=R/W, F=Size, S=functional**, T–V=$22 app, W–Y=$22 boot, Z–AC=$22 security, AD–AF=$2E app, AG–AI=$2E boot, AJ–AM=$2E security, AN/AO=product/after-sales, **AQ(43)=ECU是否支持** |
+| `02.1.ApplicationServices` | service/subfunction support matrix: K–M = supported sessions (0x01/0x02/0x03), N–Q = security levels (Level0/Level1/LevelFBL/LevelIMMO), S = project support Y/N. Header note: `LevelFBL` = "3rd/4th row of the 0x27 service list", `LevelIMMO` = 5th/6th |
+| `02.2.BootServices` | same matrix for the bootloader mode |
+
+DID support rules:
+
+- A DID row has column B starting with `0x`; the sequence column A is unreliable (duplicated/non-monotonic
+  values) and sub-data rows leave it empty. Stop at `#EndOfData`.
+- Support and R/W cells are merged per DID: read the top-left cell of the block. Empty support = N.
+- Duplicate EN names exist (`Time` appears twice) — match by DID number.
+- `$2E` session/security flags are the authority for write preconditions: e.g. `2E app = N,N,Y` + security
+  `Level1` → write only in extended after `0x27 01/02`; `2E app = N,Y,Y` + `LevelFBL` → write in
+  programming/extended after the FBL unlock.
+- `ECU是否支持 = N` does **not** always mean "the ECU rejects the DID": supplier-internal DIDs are often not
+  listed, and a passing DiVa `SimpleRequest_<did>_Read` proves the ECU answers. Do not delete such DIDs from
+  the CDD without checking the report.
+
+Service-sheet rules:
+
+- `1_1`-style sheets give the session and security matrix per service/subfunction; use it to encode
+  session-start `mayBeExec`/`trans` and to decide which `0x27` pairs exist.
+- `0x27` rows are listed as pairs: `01/02` = Level1, third/fourth row (usually `11/12`) = LevelFBL, fifth/sixth
+  (`05/06`) = LevelIMMO. A row marked `N` in the project column means the ECU does not support that level — do
+  not invent a state for it.
+- The questionnaire and the ECU can disagree (owner asks for `0x27 03/04` where the sheet documents `11/12`).
+  Follow the owner/ECU evidence and record the conflict in the change log; an unlock failing with `NRC 0x12`
+  in a DiVa report is the signal that the subfunction value is wrong.
+

@@ -63,7 +63,7 @@ python scripts/cdd_tool.py set-trans  ECU.cdd --inst ProgrammingSession --qual S
         --trans "(2,2,3,2,6,5,7,5,8,5)"
 python scripts/cdd_tool.py remove-service ECU.cdd --did 0xF187 --qual Write
 python scripts/cdd_tool.py remove-instance ECU.cdd --did 0x3012
-python scripts/cdd_tool.py enable-tp  D:\T1V_DIVA\1111.conf --state on
+python scripts/cdd_tool.py enable-tp  D:\path\to\diva\project.conf --state on
 python scripts/cdd_tool.py validate   ECU.cdd
 ```
 
@@ -75,7 +75,7 @@ python scripts/cdd_tool.py validate   ECU.cdd
 ```
 SKILL.md                            skill instructions (frontmatter + workflow + recipes)
 references/cdd-format.md            CDD XML structure, mayBeExec/trans, state indexes, DTC records
-references/did-mode-workflow.md     questionnaire sheets -> CDD edit mapping (incl. Chery 03.x/02.x layouts)
+references/did-mode-workflow.md     questionnaire sheets -> CDD edit mapping (incl. OEM 03.x/02.x layouts)
 references/did-add-and-state-model.md  adding DIDs, reworking unlock state model, DiVa TP setup
 references/diva-integration.md      DiVa project files/config, regeneration, failure patterns
 scripts/cdd_tool.py                 inspect / dtc / state-model / add-did / set-states / set-trans /
@@ -153,7 +153,7 @@ python scripts/cdd_tool.py set-trans  ECU.cdd --inst ProgrammingSession --qual S
         --trans "(2,2,3,2,6,5,7,5,8,5)"
 python scripts/cdd_tool.py remove-service ECU.cdd --did 0xF187 --qual Write
 python scripts/cdd_tool.py remove-instance ECU.cdd --did 0x3012
-python scripts/cdd_tool.py enable-tp  D:\T1V_DIVA\1111.conf --state on
+python scripts/cdd_tool.py enable-tp  D:\path\to\diva\project.conf --state on
 python scripts/cdd_tool.py validate   ECU.cdd
 ```
 
@@ -165,7 +165,7 @@ python scripts/cdd_tool.py validate   ECU.cdd
 ```
 SKILL.md                            skill 指令（frontmatter + 工作流 + 命令配方）
 references/cdd-format.md            CDD XML 结构、mayBeExec/trans、状态索引、DTC 记录
-references/did-mode-workflow.md     问卷表 → CDD 改法映射（含奇瑞 03.x/02.x 表结构）
+references/did-mode-workflow.md     问卷表 → CDD 改法映射（含 OEM 03.x/02.x 表结构）
 references/did-add-and-state-model.md  新增 DID、重构解锁状态模型、DiVa TP 配置
 references/diva-integration.md      DiVa 工程文件/配置、重新生成、失败模式
 scripts/cdd_tool.py                 inspect / dtc / state-model / add-did / set-states / set-trans /

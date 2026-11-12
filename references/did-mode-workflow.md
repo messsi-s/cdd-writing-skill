@@ -73,10 +73,10 @@ python scripts/cdd_tool.py dtc ECU.cdd
 
 Write down, per CDD revision: requirement source (file + version/date), which DIDs changed read/write mode, which services were removed, and why. The next engineer will otherwise re-derive the same state-index mapping from scratch.
 
-## 7. Real questionnaire layouts (Chery EEA5.0/5.1, EGS projects)
+## 7. Real questionnaire layouts (OEM platform A/B, ECU projects)
 
-The OEM questionnaire used on Chery projects
-(`T1V EV&PHEV_diagnostic_requirement_investigation_list_EGS_EEA5.0_V1.2_*.xlsx`) has one sheet per topic and
+The OEM questionnaire used on some OEM projects
+(`<OEM>_diagnostic_requirement_investigation_list_<platform>_*.xlsx`) has one sheet per topic and
 columns that shift between sheets. Extract it programmatically (openpyxl), never by eye.
 
 | Sheet | Layout |

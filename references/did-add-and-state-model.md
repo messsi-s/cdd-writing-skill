@@ -12,7 +12,7 @@ Tool support: `add-did`, `set-trans`, `set-states --inst`, `state-model`, `inspe
 
 ### A.1 Read the questionnaire's DID sheets
 
-The Chery EEA5.0 questionnaire (`T1V EV&PHEV_diagnostic_requirement_investigation_list_*`) uses:
+The OEM questionnaire (`<OEM>_diagnostic_requirement_investigation_list_*`) uses:
 
 | Sheet | What it contains |
 |---|---|

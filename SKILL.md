@@ -13,7 +13,7 @@ Use this skill to change a `.cdd` (CANdela Studio XML, `<CANDELA dtdvers=...>`) 
 
 ## Workflow
 
-1. **Find the requirement.** Typically an Excel diagnostic questionnaire with sheets like `4_1_Read DID`, `4_2_Write DID`, `3_1_DTC Information`, `1_1_ApplicationServices`, `4_5_SecurityAccess` (or, on Chery projects, `03.1.System DID`, `03.2.ECU DID`, `02.1.ApplicationServices`, `02.2.BootServices`). Extract: which DIDs are readable/writable, in which sessions (`0x01` default, `0x02` programming, `0x03` extended, supplier `0x60`), with which security level (`Level1`, `LevelFBL`, ...), which services/subfunctions the ECU supports, and each DID's `ECU是否支持` column. Exact column layouts and the extraction rules are in `references/did-mode-workflow.md`.
+1. **Find the requirement.** Typically an Excel diagnostic questionnaire with sheets like `4_1_Read DID`, `4_2_Write DID`, `3_1_DTC Information`, `1_1_ApplicationServices`, `4_5_SecurityAccess` (or, on some OEM projects, `03.1.System DID`, `03.2.ECU DID`, `02.1.ApplicationServices`, `02.2.BootServices`). Extract: which DIDs are readable/writable, in which sessions (`0x01` default, `0x02` programming, `0x03` extended, supplier `0x60`), with which security level (`Level1`, `LevelFBL`, ...), which services/subfunctions the ECU supports, and each DID's `ECU是否支持` column. Exact column layouts and the extraction rules are in `references/did-mode-workflow.md`.
 2. **Inspect the CDD.** `python scripts/cdd_tool.py inspect --json ECU.cdd` prints the state groups (with the exact state indexes DiVa uses), every DID with its `Read`/`Write` services and their current `mayBeExec`, and the DTC count. `dtc` lists DTC codes, failure type bytes and descriptions. `state-model` prints the session/security model with reachability.
 3. **Map requirement to states.** State indexes are the *flat* numbering of the CDD `STATEGROUPS` block, in document order: e.g. sessions `1=Default 2=Programming 3=Extended 4=SupplierSession`, then security `5=Locked 6=UnlockedL1 7=Level_3 8=Level_97`. See `references/cdd-format.md`. Never guess indexes — read them from `inspect`/`state-model`.
 4. **Apply the edit.** Use `add-did` for missing DIDs, `set-states`/`set-trans` for `mayBeExec`/`trans` changes (also for session/security instances via `--inst`), `remove-service`/`remove-instance` for things the ECU does not support, and text edits only for what the script does not cover. Backups are automatic for in-place edits. Details for the two big jobs: `references/did-add-and-state-model.md`.
@@ -56,7 +56,7 @@ python scripts/cdd_tool.py remove-service ECU.cdd --did 0xF187 --qual Write
 python scripts/cdd_tool.py remove-instance ECU.cdd --did 0x3012
 
 # switch on the DiVa Transport Layer test group (edit the DiVa project config, not the CDD)
-python scripts/cdd_tool.py enable-tp D:\T1V_DIVA\1111.conf --state on
+python scripts/cdd_tool.py enable-tp D:\path\to\diva\project.conf --state on
 
 # check the file before giving it to DiVa
 python scripts/cdd_tool.py validate ECU.cdd
@@ -80,7 +80,7 @@ Use `--out other.cdd` to write a copy instead of editing in place (in-place edit
 ## References
 
 - `references/cdd-format.md` — CDD XML structure, `mayBeExec`/`trans` encoding, state groups, DID pool/instance layout, DTC `RECORD` values, static references.
-- `references/did-mode-workflow.md` — mapping questionnaire sheets (Read/Write DID, sessions, security levels, DTC sheets, Chery `03.1`/`03.2`/`02.1`/`02.2` layouts) to CDD edits; recurring mapping tables from real projects.
+- `references/did-mode-workflow.md` — mapping questionnaire sheets (Read/Write DID, sessions, security levels, DTC sheets, OEM `03.1`/`03.2`/`02.1`/`02.2` layouts) to CDD edits; recurring mapping tables from real projects.
 - `references/did-add-and-state-model.md` — adding a DID (three insertion points, data types, clone recipe), reworking session/security transitions and adding a `0x27` level, reachability verification, DiVa transport-layer setup.
 - `references/diva-integration.md` — how DiVa consumes the state model, project files (`*.diva`/`*.conf`), transport-layer and exclusion switches, how to regenerate and read reports, and which failures mean "the CDD is wrong" versus "the ECU is wrong".
 - `scripts/cdd_tool.py` — inspect / dtc / state-model / add-did / set-states / set-trans / remove-service / remove-instance / enable-tp / validate.

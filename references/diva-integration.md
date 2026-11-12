@@ -20,6 +20,50 @@ DiVa does not decide test preconditions from the report UI — it derives the st
 4. Re-run the tests on the ECU. A failure at an `AutomaticStateChange` step means the CDD state model says "go to X" but the ECU forbids the way there — fix the `trans`/`mayBeExec` model, not the ECU test.
 5. Report both sides: CDD change (file + version) and DiVa report (test case ids that changed verdict).
 
+## DiVa project files
+
+| File | Content |
+|---|---|
+| `<project>.diva` | project file: CDD path + **MD5**, ECU qualifier/variant, CANoe integration. Editing the CDD changes the MD5 → DiVa asks to re-synchronize. |
+| `<project>.conf` | test configuration XML: test aspects, exclusions, transport-layer tests, seed/key DLL |
+| `<project>.info` | parsed specification summary (ECU/variant/CDD file+MD5) |
+| `<project>.html` | generated test specification: one section per test group with counts and test-case names |
+| `<project>.tse` / `.prim` / `.can` | generated test setup / CAPL code imported by CANoe |
+| `<reportNNNN>.html/.xml` | executed test report: per-test steps, state, verdict |
+
+Test groups (numbers used in test IDs): `1 Format`, `2 DataContent`, `3 Application`, `4 Session`,
+`5 General`, `6 FunctionalAddressing`, `7 Transport Layer`. A group with no tests is simply absent from
+`<project>.html` — that is how you confirm whether an aspect is enabled.
+
+## `<project>.conf` switches that decide which tests exist
+
+```xml
+<General ... RunsOnCan="false" TestFunctionalAddressing="false" SeedKeyDLLPath="...">
+  <TransportLayerTests TestTransportLayer="false" Timeout_Bs="1000" Timeout_Cr="1000"
+                       Buffersize="4095" Half_Duplex="false" BlocksizeMayBeOne="false" />
+```
+
+- `TestTransportLayer` — enables the **Transport Layer** test group (37 tests were generated in a real
+  project). Toggle it with `cdd_tool.py enable-tp <project>.conf --state on|off`.
+- `RunsOnCan` — checked means "the ECU does **not** speak classic CAN 2.0" (CAN FD/other networks). DiVa 12
+  documents the standard transport-layer tests for classic CAN only; a project can still generate TP tests
+  with `RunsOnCan=true`, but expect the "Transport Layer Tests not Supported" dialog when it refuses.
+- `TestFunctionalAddressing` — functional-addressing tests.
+- `<Aspects>…` — per-aspect toggles (`TimingAspect`, `FormatAspect`, `DataContentAspect`, `ApplicationAspect`,
+  `SessionSecurityAspect`) such as `TestInvalidRequestMessageLength`, `ValidateResponseData`,
+  `TestRequestInInvalidSession`, `UseECUResponseTimings`.
+- `<Services><Exclusions>` — per-service test exclusions (`<ServiceDescriptor Service="F187_Write"
+  Group="Identification"/>`). A project often excludes every Identification `Write` service and all
+  `FaultMemory_Read*` services; those services are still in the CDD.
+- `<DiagnosticTroubleCodes><Exclusions>` — per-DTC exclusions by `DTC` + `FailureTypeByte`.
+
+Practical rules:
+
+- Back up `<project>.conf` before editing; it is a plain UTF-8 file and DiVa validates it as XML.
+- **Close the DiVa GUI/project before editing** `.conf`/`.diva` externally — otherwise the running instance
+  can overwrite the file on save, or keep the old config in memory.
+- Never edit `.tse/.prim/.can/.cbf` by hand: they are generated; change the CDD or `.conf` and re-generate.
+
 ## Failure patterns that mean "CDD is wrong"
 
 | Report symptom | Likely CDD defect |

@@ -97,6 +97,7 @@ Editing `mayBeExec` correctly is enough for DiVa's test *selection and precondit
 - Services are `Read` (`0x22`), `Write` (`0x2E`); one instance can have both. A read-only DID simply has no `Write` service.
 - Data content is `SIMPLECOMPCONT → DATAOBJ spec='no' dtref='<IDENT/STRUCT id>'`; data type lengths are the `cv min/max` sizes in `DATATYPES` (`ASCII_10`, `HexDump_9_Byte`, ...).
 - Negative-response whitelists live in `SIMPLECOMPCONT → SPECDATAOBJ (Read_NR/Write_NR) → NEGRESCODEPROXIES`; add `<NEGRESCODEPROXY idref='<NEGRESCODE id>'/>` to allow e.g. `0x24`, `0x35` for `0x27`.
+- A DID is defined in **three** places (pool `<DIDS>` node with `n` = decimal number, variant `<DIDREFS>` entry, and the `Identification` `DIAGINST`). To add or clone DIDs use `cdd_tool.py add-did`; the full recipe is in `did-add-and-state-model.md`.
 
 ## DTCs
 
